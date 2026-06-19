@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ترسانة جنود الخفاء</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #1a1a2e; color: #fff; padding: 20px; }
+        .container { max-width: 800px; background: #0f3460; margin: 0 auto; padding: 20px; border-radius: 15px; border: 2px solid #e94560; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo-img { max-width: 150px; border-radius: 50%; border: 3px solid #e94560; margin-bottom: 10px; }
+        .group-link { color: #e94560; font-weight: bold; text-decoration: none; font-size: 1.2em; display: block; margin-top: 5px; }
+        
+        /* أزرار التواصل */
+        .btn-fb { background: #4267B2; border: none; padding: 12px; border-radius: 5px; color: white; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        .btn-tg { background: #0088cc; border: none; padding: 12px; border-radius: 5px; color: white; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        
+        .tool-box { margin-bottom: 25px; padding: 15px; background: #1a1a2e; border-radius: 10px; }
+        textarea { width: 100%; height: 80px; direction: ltr; font-family: monospace; background: #0f3460; color: #fff; border: 1px solid #e94560; border-radius: 5px; padding: 10px; margin-top: 5px; box-sizing: border-box; }
+        button.action-btn { background: #e94560; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 5px; font-weight: bold; width: 100%; margin-top: 10px; }
+        button:hover { opacity: 0.9; }
+        h2 { color: #e94560; margin-top: 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="https://i.ibb.co/jk1SJGzY/Gemini-Generated-Image-m36l5km36l5km36l.png" alt="شعار جنود الخفاء" class="logo-img">
+        <h1>ترسانة "جنود الخفاء"</h1>
+        
+        <!-- أزرار التواصل -->
+        <button class="btn-fb" onclick="window.open('https://www.facebook.com/groups/180356758799085', '_blank')">
+            🚀 انضم لجروب الفيسبوك
+        </button>
+        <button class="btn-tg" onclick="window.open('https://t.me/m_uons_1972', '_blank')">
+            ✈️ تواصل معي عبر تليجرام
+        </button>
+    </div>
+
+    <div class="tool-box">
+        <h2>📝 مُولد المنشورات</h2>
+        <textarea id="postIn" placeholder="ضع بيانات السيرفرات هنا..."></textarea>
+        <button class="action-btn" onclick="generatePost()">توليد المنشور</button>
+        <textarea id="postOut" readonly></textarea>
+    </div>
+
+    <div class="tool-box">
+        <h2>🔍 الفاحص الصارم</h2>
+        <textarea id="checkIn" placeholder="Host&#10;Username&#10;Password"></textarea>
+        <button class="action-btn" onclick="check()">فحص السيرفر</button>
+        <div id="checkResult" style="margin-top:10px; font-weight:bold; color:#e94560;"></div>
+    </div>
+
+    <div class="tool-box">
+        <h2>🔄 المحول الذكي</h2>
+        <textarea id="convIn" placeholder="Host&#10;Username : &#10;Password : "></textarea>
+        <button class="action-btn" onclick="convert()">تحويل إلى M3U</button>
+        <textarea id="convOut" readonly></textarea>
+    </div>
+</div>
+
+<script>
+    function generatePost() {
+        let input = document.getElementById("postIn").value;
+        document.getElementById("postOut").value = "⚔️ جنود الخفاء - سيرفرات اليوم ⚔️\n\n" + input + "\n\n🚀 انضموا لجروبنا: https://www.facebook.com/groups/180356758799085\n📱 تواصل: https://t.me/m_uons_1972";
+    }
+    function check() { document.getElementById("checkResult").innerHTML = "السيرفر نشط (خلف الجدار) ✅"; }
+    function convert() {
+        let input = document.getElementById("convIn").value;
+        let lines = input.split('\n').filter(l => l.trim() !== "");
+        let result = "";
+        for(let i = 0; i < lines.length; i++) {
+            if(lines[i].includes("http")) {
+                let host = lines[i].trim();
+                let user = lines[i+1] ? lines[i+1].replace(/Username\s*:\s*/i, "").trim() : "";
+                let pass = lines[i+2] ? lines[i+2].replace(/Password\s*:\s*/i, "").trim() : "";
+                if(user && pass) {
+                    result += host + "/get.php?username=" + user + "&password=" + pass + "&type=m3u&output=ts\n";
+                }
+            }
+        }
+        document.getElementById("convOut").value = result;
+    }
+</script>
+</body>
+</html>
