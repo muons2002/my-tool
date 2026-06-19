@@ -8,7 +8,6 @@
         .container { max-width: 800px; background: #0f3460; margin: 0 auto; padding: 20px; border-radius: 15px; border: 2px solid #e94560; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .header { text-align: center; margin-bottom: 20px; }
         .logo-img { max-width: 150px; border-radius: 50%; border: 3px solid #e94560; margin-bottom: 10px; }
-        .group-link { color: #e94560; font-weight: bold; text-decoration: none; font-size: 1.2em; display: block; margin-top: 5px; }
         
         /* أزرار التواصل */
         .btn-fb { background: #4267B2; border: none; padding: 12px; border-radius: 5px; color: white; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
@@ -17,6 +16,7 @@
         .tool-box { margin-bottom: 25px; padding: 15px; background: #1a1a2e; border-radius: 10px; }
         textarea { width: 100%; height: 80px; direction: ltr; font-family: monospace; background: #0f3460; color: #fff; border: 1px solid #e94560; border-radius: 5px; padding: 10px; margin-top: 5px; box-sizing: border-box; }
         button.action-btn { background: #e94560; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 5px; font-weight: bold; width: 100%; margin-top: 10px; }
+        button.success-btn { background: #27ae60; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 5px; font-weight: bold; width: 100%; margin-top: 10px; }
         button:hover { opacity: 0.9; }
         h2 { color: #e94560; margin-top: 0; }
     </style>
@@ -27,14 +27,8 @@
     <div class="header">
         <img src="https://i.ibb.co/jk1SJGzY/Gemini-Generated-Image-m36l5km36l5km36l.png" alt="شعار جنود الخفاء" class="logo-img">
         <h1>ترسانة "جنود الخفاء"</h1>
-        
-        <!-- أزرار التواصل -->
-        <button class="btn-fb" onclick="window.open('https://www.facebook.com/groups/180356758799085', '_blank')">
-            🚀 انضم لجروب الفيسبوك
-        </button>
-        <button class="btn-tg" onclick="window.open('https://t.me/m_uons_1972', '_blank')">
-            ✈️ تواصل معي عبر تليجرام
-        </button>
+        <button class="btn-fb" onclick="window.open('https://www.facebook.com/groups/180356758799085', '_blank')">🚀 انضم لجروب الفيسبوك</button>
+        <button class="btn-tg" onclick="window.open('https://t.me/m_uons_1972', '_blank')">✈️ تواصل معي عبر تليجرام</button>
     </div>
 
     <div class="tool-box">
@@ -42,6 +36,7 @@
         <textarea id="postIn" placeholder="ضع بيانات السيرفرات هنا..."></textarea>
         <button class="action-btn" onclick="generatePost()">توليد المنشور</button>
         <textarea id="postOut" readonly></textarea>
+        <button class="success-btn" onclick="copyToClipboard('postOut')">نسخ النص 📋</button>
     </div>
 
     <div class="tool-box">
@@ -52,10 +47,14 @@
     </div>
 
     <div class="tool-box">
-        <h2>🔄 المحول الذكي</h2>
-        <textarea id="convIn" placeholder="Host&#10;Username : &#10;Password : "></textarea>
-        <button class="action-btn" onclick="convert()">تحويل إلى M3U</button>
+        <h2>🔄 المحول الذكي (اتجاهين)</h2>
+        <textarea id="convIn" placeholder="ضع هنا رابط M3U أو بيانات Xtream..."></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button class="action-btn" onclick="convert()" style="flex: 1;">تحويل إلى M3U</button>
+            <button class="success-btn" onclick="extractFromM3U()" style="flex: 1;">استخراج بيانات</button>
+        </div>
         <textarea id="convOut" readonly></textarea>
+        <button class="success-btn" onclick="copyToClipboard('convOut')">نسخ النتيجة 📋</button>
     </div>
 </div>
 
@@ -80,6 +79,22 @@
             }
         }
         document.getElementById("convOut").value = result;
+    }
+    function extractFromM3U() {
+        let input = document.getElementById("convIn").value.trim();
+        if (input.includes("/get.php")) {
+            let host = input.split('/get.php')[0];
+            let user = input.split('username=')[1]?.split('&')[0];
+            let pass = input.split('password=')[1]?.split('&')[0];
+            document.getElementById("convOut").value = "Host: " + host + "\nUsername: " + (user || "") + "\nPassword: " + (pass || "");
+        } else {
+            document.getElementById("convOut").value = "خطأ: يرجى وضع رابط M3U صحيح!";
+        }
+    }
+    function copyToClipboard(id) {
+        let text = document.getElementById(id);
+        text.select();
+        document.execCommand("copy");
     }
 </script>
 </body>
