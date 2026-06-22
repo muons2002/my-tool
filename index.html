@@ -19,14 +19,14 @@
 
 <div class="container"><div class="tool-box">
     <div id="loginArea">
-        <h3>📺 مشغل جنود الخفاء (جاري الاتصال...)</h3>
-        <input type="text" id="host" value="http://93.157.106.66:7000" placeholder="الهوست">
-        <input type="text" id="user" value="hassan.essaadi" placeholder="اليوزر">
-        <input type="text" id="pass" value="REERSTRS5545" placeholder="الباسورد">
-        <button onclick="loginAndFetch()">إعادة محاولة الاتصال</button>
+        <h3>📺 مشغل جنود الخفاء</h3>
+        <input type="text" id="host" placeholder="الهوست">
+        <input type="text" id="user" placeholder="اليوزر">
+        <input type="text" id="pass" placeholder="الباسورد">
+        <button onclick="loginAndFetch()">دخول</button>
     </div>
     <div id="playerArea">
-        <button onclick="location.reload()" style="background:#475569;">⬅ خروج وتغيير</button>
+        <button onclick="location.reload()" style="background:#475569;">⬅ خروج</button>
         <div class="player-layout">
             <select id="channelList" size="10" onchange="playSelected(this.value)"></select>
             <video id="videoPlayer" controls></video>
@@ -37,14 +37,15 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
     const PROXY = "https://cors-anywhere.herokuapp.com/";
-    // تنفيذ تلقائي
-    window.onload = loginAndFetch;
 
     async function loginAndFetch() {
         const host = document.getElementById('host').value.replace(/\/$/, "");
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
 
+        if(!host) { alert("أدخل الهوست!"); return; }
+
+        // محاولة جلب البيانات عبر الوسيط
         try {
             const res = await fetch(`${PROXY}${host}/player_api.php?username=${u}&password=${p}&action=get_live_streams`);
             const data = await res.json();
@@ -58,7 +59,10 @@
             });
             document.getElementById('loginArea').style.display = 'none';
             document.getElementById('playerArea').style.display = 'flex';
-        } catch(e) { console.log("جاري المحاولة..."); }
+        } catch(e) { 
+            alert("فشل الاتصال! تأكد من فتح رابط تفعيل الوسيط أولاً.");
+            window.open("https://cors-anywhere.herokuapp.com/", "_blank");
+        }
     }
     
     function playSelected(url) {
