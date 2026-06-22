@@ -7,57 +7,48 @@
         body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #fff; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         .tool-box { background: #1e293b; padding: 25px; border-radius: 15px; border: 1px solid #334155; }
-        h3 { color: #f43f5e; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #f43f5e; border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .logout-btn { background: #475569; margin-bottom: 15px; }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box; }
+        button { background: #f43f5e; border: none; font-weight: bold; cursor: pointer; }
         #playerArea { display: none; flex-direction: column; }
-        .player-layout { display: flex; gap: 15px; flex-wrap: wrap; }
-        #channelList { flex: 1; min-width: 250px; height: 350px; background: #0f172a; color: #fff; border: 1px solid #334155; padding: 10px; }
-        #videoPlayer { flex: 2; min-width: 300px; height: 350px; background: #000; border: 2px solid #f43f5e; border-radius: 8px; }
+        .player-layout { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
+        #channelList { flex: 1; height: 350px; background: #0f172a; color: #fff; border: 1px solid #334155; }
+        #videoPlayer { flex: 2; height: 350px; background: #000; border: 2px solid #f43f5e; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="tool-box">
-        <h3>📺 مشغل "جنود الخفاء" المباشر</h3>
-        
-        <div id="loginArea">
-            <input type="text" id="host" placeholder="الهوست (مثال: http://dns:port)">
-            <input type="text" id="user" placeholder="اليوزر">
-            <input type="text" id="pass" placeholder="الباسورد">
-            <button onclick="loginAndFetch()">دخول وتحميل القنوات</button>
-        </div>
-
-        <div id="playerArea">
-            <button class="logout-btn" onclick="logout()">⬅ خروج وتغيير السيرفر</button>
-            <div class="player-layout">
-                <select id="channelList" size="10" onchange="playSelected(this.value)"></select>
-                <video id="videoPlayer" controls></video>
-            </div>
+<div class="container"><div class="tool-box">
+    <div id="loginArea">
+        <h3>📺 مشغل جنود الخفاء</h3>
+        <input type="text" id="host" value="http://93.157.106.66:7000" placeholder="الهوست">
+        <input type="text" id="user" value="hassan.essaadi" placeholder="اليوزر">
+        <input type="text" id="pass" value="REERSTRS5545" placeholder="الباسورد">
+        <button onclick="loginAndFetch()">دخول سريع</button>
+    </div>
+    <div id="playerArea">
+        <button onclick="location.reload()" style="background:#475569;">⬅ خروج</button>
+        <div class="player-layout">
+            <select id="channelList" size="10" onchange="playSelected(this.value)"></select>
+            <video id="videoPlayer" controls></video>
         </div>
     </div>
-</div>
+</div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
     const PROXY = "https://cors-anywhere.herokuapp.com/";
+    // تنفيذ تلقائي عند التحميل
+    window.onload = () => { loginAndFetch(); };
 
     async function loginAndFetch() {
         const host = document.getElementById('host').value.replace(/\/$/, "");
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
 
-        if(!host || !u || !p) { alert("أدخل البيانات يا بطل!"); return; }
-
         try {
-            const res = await fetch(`${PROXY}${host}/player_api.php?username=${u}&password=${p}&action=get_live_streams`, {
-                headers: { 'User-Agent': 'IPTVSmartersPlayer' }
-            });
+            const res = await fetch(`${PROXY}${host}/player_api.php?username=${u}&password=${p}&action=get_live_streams`);
             const data = await res.json();
             const select = document.getElementById('channelList');
-            select.innerHTML = '';
             data.forEach(s => {
                 let opt = document.createElement('option');
                 opt.value = `${host}/live/${u}/${p}/${s.stream_id}.m3u8`;
@@ -66,24 +57,12 @@
             });
             document.getElementById('loginArea').style.display = 'none';
             document.getElementById('playerArea').style.display = 'flex';
-        } catch (e) { alert("خطأ! تأكد من البيانات أو فعل الوسيط."); }
+        } catch(e) {}
     }
-
-    function logout() {
-        document.getElementById('playerArea').style.display = 'none';
-        document.getElementById('loginArea').style.display = 'block';
-        let video = document.getElementById('videoPlayer');
-        video.src = "";
-    }
-
-    let currentHls = null;
+    
     function playSelected(url) {
         let video = document.getElementById('videoPlayer');
-        if (currentHls) currentHls.destroy();
-        currentHls = new Hls();
-        currentHls.loadSource(url);
-        currentHls.attachMedia(video);
-        currentHls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        let hls = new Hls(); hls.loadSource(url); hls.attachMedia(video); hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
     }
 </script>
 </body>
