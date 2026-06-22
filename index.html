@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ترسانة جنود الخفاء</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #fff; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .my-logo { width: 180px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 0 10px #f43f5e); }
+        .tool-box { background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid #334155; }
+        h3 { color: #f43f5e; text-align: center; margin-bottom: 20px; }
+        .player-layout { display: flex; gap: 15px; flex-wrap: wrap; }
+        #channelList { 
+            flex: 1; min-width: 250px; height: 350px; 
+            background-color: #0f172a !important; color: #fff !important; 
+            border: 1px solid #334155 !important; border-radius: 8px; padding: 10px;
+        }
+        #channelList option:checked { background-color: #f43f5e !important; }
+        #channelList::-webkit-scrollbar { width: 8px; }
+        #channelList::-webkit-scrollbar-thumb { background: #f43f5e; border-radius: 4px; }
+        #videoPlayer { flex: 2; min-width: 300px; height: 350px; background: #000; border-radius: 8px; border: 2px solid #f43f5e; }
+        input { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #f43f5e; border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="https://i.ibb.co/n8c2QzHf/Gemini-Generated-Image-m36l5km36l5km36l.png" alt="جنود الخفاء" class="my-logo">
+    
+    <div class="tool-box">
+        <h3>📺 مشغل "جنود الخفاء" المباشر</h3>
+        
+        <div id="loginArea">
+            <input type="text" id="host" placeholder="الهوست (مثال: http://dns:port)">
+            <input type="text" id="user" placeholder="اليوزر">
+            <input type="text" id="pass" placeholder="الباسورد">
+            <button onclick="loginAndFetch()">دخول وتحميل القنوات</button>
+        </div>
+
+        <div id="playerArea" style="display: none;" class="player-layout">
+            <select id="channelList" size="10" onchange="playSelected(this.value)"></select>
+            <video id="videoPlayer" controls></video>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+    // كشف المتصفح المدمج في تطبيقات التواصل
+    var ua = navigator.userAgent || navigator.vendor || window.opera;
+    if ((ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Messenger") > -1)) {
+        document.body.innerHTML = `
+            <div style="text-align:center; padding:50px; color:white; background:#1e293b; border-radius:15px;">
+                <h2 style="color:#f43f5e;">تنبيه هام يا هندسة!</h2>
+                <p>المتصفح المدمج في فيسبوك/ماسنجر يمنع تشغيل السيرفرات لأسباب أمنية.</p>
+                <p>اضغط على الثلاث نقاط في أعلى الشاشة واختر <b>"فتح في المتصفح" (Open in Browser)</b> للتشغيل.</p>
+            </div>
+        `;
+    }
+
+    let currentHls = null;
+
+    function loginAndFetch() {
+        let host = document.getElementById('host').value.replace(/\/$/, "");
+        let u = document.getElementById('user').value;
+        let p = document.getElementById('pass').value;
+        
+        if(!host || !u || !p) { alert("يا هندسة ناقص بيانات!"); return; }
+
+        fetch(`${host}/player_api.php?username=${u}&password=${p}&action=get_live_streams`, {
+            headers: { 'User-Agent': 'IPTVSmartersPlayer' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('playerArea').style.display = 'flex';
+            let select = document.getElementById('channelList');
+            select.innerHTML = '';
+            data.forEach(s => {
+                let opt = document.createElement('option');
+                opt.value = `${host}/live/${u}/${p}/${s.stream_id}.m3u8`;
+                opt.text = s.name;
+                select.appendChild(opt);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            alert("خطأ في الاتصال! تأكد من أن الهوست يبدأ بـ http، وجرب استخدام VPN إذا استمرت المشكلة.");
+        });
+    }
+
+    function playSelected(streamUrl) {
+        if(!streamUrl) return;
+        let video = document.getElementById('videoPlayer');
+        if (currentHls) currentHls.destroy();
+
+        let config = { xhrSetup: function(xhr, url) { xhr.setRequestHeader('User-Agent', 'IPTVSmartersPlayer'); } };
+        
+        if (Hls.isSupported()) {
+            currentHls = new Hls(config);
+            currentHls.loadSource(streamUrl);
+            currentHls.attachMedia(video);
+            currentHls.on(Hls.Events.MANIFEST_PARSED, () => { video.play(); });
+        } else { video.src = streamUrl; video.play(); }
+    }
+</script>
+</body>
+</html>
