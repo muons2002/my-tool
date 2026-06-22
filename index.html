@@ -2,74 +2,73 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ترسانة جنود الخفاء</title>
+    <title>مشغل جنود الخفاء</title>
     <style>
         body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #fff; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .my-logo { width: 180px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 0 10px #f43f5e); }
-        .tool-box { background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid #334155; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .tool-box { background: #1e293b; padding: 25px; border-radius: 15px; border: 1px solid #334155; }
         h3 { color: #f43f5e; text-align: center; }
-        #playerArea { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
-        #channelList { flex: 1; min-width: 250px; height: 350px; background: #0f172a; color: #fff; border: 1px solid #334155; padding: 10px; cursor: pointer; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #f43f5e; border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #playerArea { display: none; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+        #channelList { flex: 1; min-width: 250px; height: 350px; background: #0f172a; color: #fff; border: 1px solid #334155; padding: 10px; }
         #videoPlayer { flex: 2; min-width: 300px; height: 350px; background: #000; border: 2px solid #f43f5e; border-radius: 8px; }
-        .note { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <img src="https://i.ibb.co/n8c2QzHf/Gemini-Generated-Image-m36l5km36l5km36l.png" alt="جنود الخفاء" class="my-logo">
     <div class="tool-box">
-        <h3>📺 جاري تحميل قنوات "جنود الخفاء"...</h3>
-        <div id="playerArea">
+        <h3>📺 مشغل "جنود الخفاء" المباشر</h3>
+        <div id="loginArea">
+            <input type="text" id="host" placeholder="الهوست (مثال: http://dns:port)">
+            <input type="text" id="user" placeholder="اليوزر">
+            <input type="text" id="pass" placeholder="الباسورد">
+            <button onclick="loginAndFetch()">دخول وتحميل القنوات</button>
+        </div>
+        <div id="playerArea" class="player-layout" style="display: flex;">
             <select id="channelList" size="10" onchange="playSelected(this.value)"></select>
             <video id="videoPlayer" controls></video>
         </div>
-        <p class="note">* إذا لم تعمل القنوات، اضغط على الرابط التالي لتفعيل الصلاحية: <br> <a href="https://cors-anywhere.herokuapp.com/" target="_blank" style="color:#f43f5e;">تفعيل الوسيط (Request Access)</a></p>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-    // بياناتك المباشرة
-    const HOST = "http://93.157.106.66:7000";
-    const USER = "hassan.essaadi";
-    const PASS = "REERSTRS5545";
     const PROXY = "https://cors-anywhere.herokuapp.com/";
 
-    async function init() {
+    async function loginAndFetch() {
+        const host = document.getElementById('host').value.replace(/\/$/, "");
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+
         try {
-            const response = await fetch(`${PROXY}${HOST}/player_api.php?username=${USER}&password=${PASS}&action=get_live_streams`, {
+            const res = await fetch(`${PROXY}${host}/player_api.php?username=${u}&password=${p}&action=get_live_streams`, {
                 headers: { 'User-Agent': 'IPTVSmartersPlayer' }
             });
-            const data = await response.json();
+            const data = await res.json();
             const select = document.getElementById('channelList');
+            select.innerHTML = '';
             data.forEach(s => {
                 let opt = document.createElement('option');
-                opt.value = `${HOST}/live/${USER}/${PASS}/${s.stream_id}.m3u8`;
+                opt.value = `${host}/live/${u}/${p}/${s.stream_id}.m3u8`;
                 opt.text = s.name;
                 select.appendChild(opt);
             });
-        } catch (err) {
-            console.error(err);
-            alert("خطأ: يرجى الضغط على رابط 'تفعيل الوسيط' أسفل المشغل لتتمكن من المشاهدة.");
-        }
+            document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('playerArea').style.display = 'flex';
+        } catch (e) { alert("خطأ: تأكد من البيانات أو اضغط على رابط تفعيل الوسيط."); }
     }
 
     let currentHls = null;
-    function playSelected(streamUrl) {
-        if(!streamUrl) return;
+    function playSelected(url) {
         let video = document.getElementById('videoPlayer');
         if (currentHls) currentHls.destroy();
-        if (Hls.isSupported()) {
-            currentHls = new Hls({ xhrSetup: function(xhr) { xhr.setRequestHeader('User-Agent', 'IPTVSmartersPlayer'); } });
-            currentHls.loadSource(streamUrl);
-            currentHls.attachMedia(video);
-            currentHls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        } else { video.src = streamUrl; video.play(); }
+        currentHls = new Hls();
+        currentHls.loadSource(url);
+        currentHls.attachMedia(video);
+        currentHls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
     }
-
-    init();
 </script>
 </body>
 </html>
