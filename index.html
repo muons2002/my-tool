@@ -2,67 +2,61 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل جنود الخفاء</title>
+    <title>إذاعة القرآن الكريم</title>
     <style>
-        body { background: #0f172a; color: #fff; padding: 20px; font-family: Tahoma; }
-        .box { max-width: 900px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 15px; }
-        input, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; }
-        button { background: #f43f5e; font-weight: bold; cursor: pointer; }
-        #playerArea { display: none; }
-        .grid { display: flex; gap: 15px; margin-top: 15px; }
-        @media (max-width: 600px) { .grid { flex-direction: column; } }
-        #list { flex: 1; height: 350px; background: #0f172a; color: #fff; border: 1px solid #334155; }
-        #vid { flex: 2; background: #000; height: 350px; border-radius: 8px; border: 2px solid #f43f5e; }
+        body { 
+            background: #0f171e; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            font-family: sans-serif; 
+        }
+        
+        .card { 
+            background: #1a2936; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            text-align: center; 
+            width: 80%; 
+            max-width: 500px; 
+        }
+        
+        .group-tag { 
+            color: #4fc3f7; 
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 30px; 
+        }
+        
+        audio { 
+            width: 100%; 
+            margin-bottom: 20px;
+        }
+
+        .footer-note {
+            color: #819ca9;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
-<div class="box">
-    <div id="login">
-        <h3>📺 مشغل جنود الخفاء</h3>
-        <input type="text" id="host" placeholder="الهوست">
-        <input type="text" id="user" placeholder="اليوزر">
-        <input type="text" id="pass" placeholder="الباسورد">
-        <button onclick="go()">دخول</button>
+
+    <div class="card">
+        <!-- تم الحذف بناءً على طلبك -->
+        
+        <div class="group-tag">جنود الخفاء - حب الخير للغير</div>
+        
+        <audio controls autoplay>
+            <source src="https://stream.radiojar.com/8s5u5tpdtwzuv" type="audio/mpeg">
+        </audio>
+        
+        <div class="footer-note">اللهم اجعله في ميزان حسناتكم</div>
     </div>
-    <div id="playerArea">
-        <button onclick="location.reload()" style="background:#475569; margin-bottom:10px;">⬅ خروج</button>
-        <div class="grid">
-            <select id="list" size="10" onchange="play(this.value)"></select>
-            <video id="vid" controls></video>
-        </div>
-    </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-    // وسيط سريع ومستقر
-    const PROXY = "https://corsproxy.io/?"; 
-    async function go() {
-        const h = document.getElementById('host').value;
-        const u = document.getElementById('user').value;
-        const p = document.getElementById('pass').value;
-        try {
-            // الاتصال عبر الوسيط
-            const res = await fetch(`${PROXY}${encodeURIComponent(h + '/player_api.php?username=' + u + '&password=' + p + '&action=get_live_streams')}`);
-            const d = await res.json();
-            const sel = document.getElementById('list');
-            sel.innerHTML = '';
-            d.forEach(s => {
-                let o = document.createElement('option');
-                o.value = `${h}/live/${u}/${p}/${s.stream_id}.m3u8`;
-                o.text = s.name;
-                sel.appendChild(o);
-            });
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('playerArea').style.display = 'block';
-        } catch(e) { alert("حدث خطأ في الاتصال، تأكد من البيانات."); }
-    }
-    function play(url) {
-        let v = document.getElementById('vid');
-        if(window.hls) window.hls.destroy();
-        window.hls = new Hls(); window.hls.loadSource(url); window.hls.attachMedia(v);
-        window.hls.on(Hls.Events.MANIFEST_PARSED, () => v.play());
-    }
-</script>
+
 </body>
 </html>
