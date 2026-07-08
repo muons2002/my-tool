@@ -2,190 +2,77 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ترسانة جنود الخفاء</title>
+    <title>مشغل جنود الخفاء</title>
     <style>
-        body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #fff; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .my-logo { width: 180px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 0 10px #f43f5e); }
-        .tool-box { background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid #334155; }
-        h3 { color: #f43f5e; text-align: center; margin-bottom: 20px; }
-        .player-layout { display: flex; gap: 15px; flex-wrap: wrap; }
-        .channels-container { flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 10px; }
-        #searchChannel { background: #0f172a; border: 1px solid #334155; color: #fff; padding: 8px; border-radius: 6px; }
-        #channelList { 
-            width: 100%; height: 260px; 
-            background-color: #0f172a !important; color: #fff !important; 
-            border: 1px solid #334155 !important; border-radius: 8px; padding: 10px;
-        }
-        #channelList option:checked { background-color: #f43f5e !important; }
-        #channelList::-webkit-scrollbar { width: 8px; }
-        #channelList::-webkit-scrollbar-thumb { background: #f43f5e; border-radius: 4px; }
-        #videoPlayer { flex: 2; min-width: 300px; height: 350px; background: #000; border-radius: 8px; border: 2px solid #f43f5e; }
-        input { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #f43f5e; border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:disabled { background: #64748b; cursor: not-allowed; }
-        
-        /* زرار الرجوع للخلف المتناسق مع التصميم */
-        .back-btn { background: #475569; padding: 10px; font-size: 13px; margin-top: 5px; }
-        .back-btn:hover { background: #334155; }
+        body { background: #0f172a; color: #fff; padding: 20px; font-family: Tahoma; }
+        .box { max-width: 900px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid #334155; }
+        .logo { width: 120px; height: 120px; margin: 0 auto 15px; display: block; border-radius: 50%; border: 2px solid #f43f5e; }
+        input, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; }
+        button { background: #f43f5e; font-weight: bold; cursor: pointer; }
+        #playerArea { display: none; }
+        .grid { display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+        #list { flex: 1; height: 350px; background: #0f172a; color: #fff; border: 1px solid #334155; padding: 10px; }
+        #vid { flex: 2; background: #000; height: 350px; border-radius: 8px; border: 2px solid #f43f5e; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <img src="https://i.ibb.co/n8c2QzHf/Gemini-Generated-Image-m36l5km36l5km36l.png" alt="جنود الخفاء" class="my-logo">
-    
-    <div class="tool-box">
-        <h3>📺 مشغل "جنود الخفاء" المباشر</h3>
-        
-        <div id="loginArea">
-            <input type="text" id="host" placeholder="الهوست (مثال: http://dns:port)">
-            <input type="text" id="user" placeholder="اليوزر">
-            <input type="text" id="pass" placeholder="الباسورد">
-            <button id="loginBtn" onclick="loginAndFetch()">دخول وتحميل القنوات</button>
-        </div>
-
-        <div id="playerArea" style="display: none;" class="player-layout">
-            <div class="channels-container">
-                <input type="text" id="searchChannel" placeholder="🔍 ابحث عن قناة..." oninput="filterChannels()">
-                <select id="channelList" size="10" onchange="playSelected(this.value)"></select>
-                <button class="back-btn" onclick="goBack()">🔙 تغيير السيرفر / خروج</button>
-            </div>
-            <video id="videoPlayer" controls></video>
+<div class="box">
+    <img src="https://i.ibb.co/n8c2QzHf/logo.png" class="logo">
+    <div id="login">
+        <h3>📺 مشغل جنود الخفاء</h3>
+        <input type="text" id="host" value="http://markcode.online:8080">
+        <input type="text" id="user" value="6350661378">
+        <input type="text" id="pass" value="24848524267731dd74a135">
+        <button onclick="go()">دخول</button>
+    </div>
+    <div id="playerArea">
+        <input type="text" id="search" placeholder="🔍 ابحث عن قناة..." onkeyup="filter()">
+        <button onclick="location.reload()" style="background:#475569;">⬅ خروج</button>
+        <div class="grid">
+            <select id="list" size="10" onchange="play(this.value)"></select>
+            <video id="vid" controls autoplay></video>
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-    // كشف المتصفح المدمج في تطبيقات التواصل
-    var ua = navigator.userAgent || navigator.vendor || window.opera;
-    if ((ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Messenger") > -1)) {
-        document.body.innerHTML = `
-            <div style="text-align:center; padding:50px; color:white; background:#1e293b; border-radius:15px; max-width:600px; margin:40px auto; direction:rtl;">
-                <h2 style="color:#f43f5e;">تنبيه هام يا هندسة!</h2>
-                <p>المتصفح المدمج في فيسبوك/ماسنجر يمنع تشغيل السيرفرات لأسباب أمنية.</p>
-                <p>اضغط على الثلاث نقاط في أعلى الشاشة واختر <b>"فتح في المتصفح" (Open in Browser)</b> للتشغيل بسلام.</p>
-            </div>
-        `;
+    let allChannels = [];
+    async function go() {
+        const h = document.getElementById('host').value;
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        try {
+            const res = await fetch(`${h}/player_api.php?username=${u}&password=${p}&action=get_live_streams`);
+            allChannels = await res.json();
+            render(allChannels);
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('playerArea').style.display = 'block';
+        } catch(e) { alert("تأكد من البيانات!"); }
     }
-
-    let currentHls = null;
-    let allChannels = []; 
-    let savedHost = "", savedUser = "", savedPass = "";
-
-    function loginAndFetch() {
-        let host = document.getElementById('host').value.replace(/\/$/, "");
-        let u = document.getElementById('user').value;
-        let p = document.getElementById('pass').value;
-        let btn = document.getElementById('loginBtn');
-        
-        if(!host || !u || !p) { alert("يا هندسة ناقص بيانات!"); return; }
-
-        savedHost = host;
-        savedUser = u;
-        savedPass = p;
-
-        btn.disabled = true;
-        btn.innerText = "جاري الاتصال وتحميل القنوات...";
-
-        fetch(`${host}/player_api.php?username=${u}&password=${p}&action=get_live_streams`, {
-            headers: { 'User-Agent': 'IPTVSmartersPlayer' }
-        })
-        .then(res => {
-            if(!res.ok) throw new Error("Network response was not ok");
-            return res.json();
-        })
-        .then(data => {
-            if(!Array.isArray(data)) {
-                alert("البيانات المستلمة غير صحيحة، أو أن السيرفر محمي ضد متصفحات الويب (CORS Error)");
-                btn.disabled = false;
-                btn.innerText = "دخول وتحميل القنوات";
-                return;
-            }
-            
-            allChannels = data; 
-            document.getElementById('loginArea').style.display = 'none';
-            document.getElementById('playerArea').style.display = 'flex';
-            
-            renderChannels(allChannels);
-        })
-        .catch(err => {
-            console.error(err);
-            alert("خطأ في الاتصال! تأكد من البيانات، أو أن السيرفر يرفض طلبات الويب بسبب حماية الـ CORS.");
-            btn.disabled = false;
-            btn.innerText = "دخول وتحميل القنوات";
+    function render(data) {
+        const h = document.getElementById('host').value;
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        const sel = document.getElementById('list');
+        sel.innerHTML = '';
+        data.forEach(s => {
+            let o = document.createElement('option');
+            o.value = `${h}/live/${u}/${p}/${s.stream_id}.m3u8`;
+            o.text = s.name;
+            sel.appendChild(o);
         });
     }
-
-    function renderChannels(channels) {
-        let select = document.getElementById('channelList');
-        select.innerHTML = '';
-        
-        if(channels.length === 0) {
-            let opt = document.createElement('option');
-            opt.text = "لا توجد قنوات مطابقة";
-            opt.disabled = true;
-            select.appendChild(opt);
-            return;
-        }
-
-        channels.forEach(s => {
-            let opt = document.createElement('option');
-            opt.value = `${savedHost}/live/${savedUser}/${savedPass}/${s.stream_id}.m3u8`;
-            opt.text = s.name;
-            select.appendChild(opt);
-        });
+    function filter() {
+        const q = document.getElementById('search').value.toLowerCase();
+        render(allChannels.filter(c => c.name.toLowerCase().includes(q)));
     }
-
-    function filterChannels() {
-        let query = document.getElementById('searchChannel').value.toLowerCase();
-        let filtered = allChannels.filter(c => c.name && c.name.toLowerCase().includes(query));
-        renderChannels(filtered);
-    }
-
-    function playSelected(streamUrl) {
-        if(!streamUrl) return;
-        let video = document.getElementById('videoPlayer');
-        if (currentHls) currentHls.destroy();
-
-        let config = { xhrSetup: function(xhr, url) { xhr.setRequestHeader('User-Agent', 'IPTVSmartersPlayer'); } };
-        
-        if (Hls.isSupported()) {
-            currentHls = new Hls(config);
-            currentHls.loadSource(streamUrl);
-            currentHls.attachMedia(video);
-            currentHls.on(Hls.Events.MANIFEST_PARSED, () => { video.play(); });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) { 
-            video.src = streamUrl; 
-            video.play(); 
-        }
-    }
-
-    // دالة الرجوع للخلف وتفريغ البيانات لإدخال سيرفر آخر
-    function goBack() {
-        // 1. إيقاف الفيديو تماماً وتدمير الـ HLS لو كان شغال لحفظ موارد الجهاز
-        let video = document.getElementById('videoPlayer');
-        video.pause();
-        video.src = "";
-        if (currentHls) {
-            currentHls.destroy();
-            currentHls = null;
-        }
-
-        // 2. تصفير المصفوفات وتفريغ قائمة القنوات والبحث
-        allChannels = [];
-        document.getElementById('channelList').innerHTML = '';
-        document.getElementById('searchChannel').value = '';
-
-        // 3. إخفاء منطقة المشغل وإظهار منطقة تسجيل الدخول من جديد
-        document.getElementById('playerArea').style.display = 'none';
-        document.getElementById('loginArea').style.display = 'block';
-
-        // 4. إعادة تهيئة زر الدخول ليكون جاهزاً للسيرفر الجديد
-        let btn = document.getElementById('loginBtn');
-        btn.disabled = false;
-        btn.innerText = "دخول وتحميل القنوات";
+    function play(url) {
+        let v = document.getElementById('vid');
+        if(window.hls) window.hls.destroy();
+        window.hls = new Hls(); 
+        window.hls.loadSource(url); 
+        window.hls.attachMedia(v);
+        window.hls.on(Hls.Events.MANIFEST_PARSED, () => v.play());
     }
 </script>
 </body>
