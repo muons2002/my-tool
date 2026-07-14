@@ -2,61 +2,124 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>إذاعة القرآن الكريم</title>
     <style>
-        body { 
-            background: #0f171e; 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
-            font-family: sans-serif; 
+        body { background: #0f171e; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: white; font-family: sans-serif; }
+        .container { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+        
+        .clock-wrapper { position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; }
+        
+        #halo { 
+            position: absolute; width: 150px; height: 150px; border-radius: 50%; 
+            background: radial-gradient(circle, rgba(79, 195, 247, 0.4), transparent); 
+            z-index: 0; pointer-events: none; transition: transform 0.08s ease-out; 
         }
         
-        .card { 
-            background: #1a2936; 
-            padding: 40px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            text-align: center; 
-            width: 80%; 
-            max-width: 500px; 
-        }
+        .clock-container { width: 150px; height: 150px; background: #1a2936; border-radius: 50%; position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; }
+        .center-dot { position: absolute; width: 10px; height: 10px; background: #fff; border-radius: 50%; z-index: 2; box-shadow: 0 0 5px #fff; }
         
-        .group-tag { 
-            color: #4fc3f7; 
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 30px; 
-        }
+        .info-box { display: flex; flex-direction: column; align-items: center; margin-top: 15px; background: rgba(26, 41, 54, 0.6); padding: 10px 20px; border-radius: 10px; }
+        .neon-text { font-size: 1.1rem; font-weight: bold; color: #4fc3f7; letter-spacing: 1px; }
+        .brand-text { font-size: 0.75rem; color: #8899a6; margin-top: 4px; letter-spacing: 0.5px; }
         
-        audio { 
-            width: 100%; 
-            margin-bottom: 20px;
-        }
-
-        .footer-note {
-            color: #819ca9;
-            font-size: 0.9rem;
+        .num { position: absolute; font-size: 0.9rem; font-weight: bold; color: #4fc3f7; }
+        .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: white; border-radius: 5px; }
+        #hour { height: 35px; width: 4px; margin-left: -2px; }
+        #min { height: 50px; width: 3px; margin-left: -1.5px; }
+        #sec { height: 55px; width: 2px; margin-left: -1px; background: #ff5252; }
+        
+        #btn { 
+            padding: 10px 25px; background: #4fc3f7; border: none; border-radius: 5px; cursor: pointer; 
+            font-weight: bold; color: #0f171e; z-index: 3; transition: all 0.3s ease; 
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <!-- تم الحذف بناءً على طلبك -->
-        
-        <div class="group-tag">جنود الخفاء - حب الخير للغير</div>
-        
-        <audio controls autoplay>
-            <source src="https://stream.radiojar.com/8s5u5tpdtwzuv" type="audio/mpeg">
-        </audio>
-        
-        <div class="footer-note">اللهم اجعله في ميزان حسناتكم</div>
+<div class="container">
+    <div class="clock-wrapper">
+        <div id="halo"></div>
+        <div class="clock-container">
+            <div class="center-dot"></div>
+            <script>
+                for(let i=1; i<=12; i++) {
+                    let angle = (i * 30) * (Math.PI / 180);
+                    let x = 60 * Math.sin(angle);
+                    let y = -60 * Math.cos(angle);
+                    document.write(`<div class="num" style="transform:translate(${x}px, ${y}px)">${i}</div>`);
+                }
+            </script>
+            <div class="hand" id="hour"></div>
+            <div class="hand" id="min" style="transition: transform 0.3s cubic-bezier(.4,2.08,.55,.44);"></div>
+            <div class="hand" id="sec" style="transition: transform 0.2s cubic-bezier(.4,2.08,.55,.44);"></div>
+        </div>
     </div>
+    
+    <div class="info-box">
+        <div class="neon-text">إذاعة القرآن الكريم</div>
+        <div class="brand-text">اللهم اجعله في ميزان حسناتكم</div>
+        <div class="brand-text">محمد يونس</div>
+    </div>
+    <button id="btn" onclick="toggleRadio()">تشغيل الإذاعة</button>
+    <audio id="audio" src="https://n04.radiojar.com/8s5u5tpdtwzuv?1719266736413" crossorigin="anonymous"></audio>
+</div>
 
+<script>
+    let isPlaying = false;
+    const audio = document.getElementById('audio');
+    const btn = document.getElementById('btn');
+    const halo = document.getElementById('halo');
+    let audioCtx, analyser;
+
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('sec').style.transform = `rotate(${now.getSeconds() * 6}deg)`;
+        document.getElementById('min').style.transform = `rotate(${now.getMinutes() * 6}deg)`;
+        document.getElementById('hour').style.transform = `rotate(${(now.getHours() % 12) * 30 + now.getMinutes() * 0.5}deg)`;
+        requestAnimationFrame(updateClock);
+    }
+    updateClock();
+
+    function toggleRadio() {
+        if (!isPlaying) {
+            audio.play();
+            btn.innerText = "إيقاف الإذاعة";
+            // التعديل الوظيفي المطلوب:
+            btn.style.backgroundColor = "#ff5252";
+            btn.style.color = "#ffffff";
+            isPlaying = true;
+            startVisualizer();
+        } else {
+            audio.pause();
+            btn.innerText = "تشغيل الإذاعة";
+            // يرجع للونك الأصلي:
+            btn.style.backgroundColor = "#4fc3f7";
+            btn.style.color = "#0f171e";
+            isPlaying = false;
+            halo.style.transform = "scale(1)"; 
+        }
+    }
+
+    function startVisualizer() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioCtx.createMediaElementSource(audio);
+            analyser = audioCtx.createAnalyser();
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 64;
+        }
+        
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        function updateHalo() {
+            if (!isPlaying) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = dataArray.reduce((a, b) => a + b);
+            let scale = 1 + (sum / 12000); 
+            halo.style.transform = `scale(${scale})`;
+            requestAnimationFrame(updateHalo);
+        }
+        updateHalo();
+    }
+</script>
 </body>
 </html>
