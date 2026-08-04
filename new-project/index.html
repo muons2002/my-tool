@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جنود الخفاء - مكتبة الأفلام والمسرحيات والمسلسلات الشاملة</title>
+    <style>
+        :root {
+            --bg-color: #0a0b0e;
+            --card-bg: #14161f;
+            --text-color: #ffffff;
+            --accent-color: #00c6ff;
+            --accent-hover: #0072ff;
+            --border-color: #202433;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+
+        header p {
+            color: #8a90a3;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .player-container {
+            max-width: 950px;
+            margin: 0 auto 25px auto;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.95);
+        }
+
+        video {
+            width: 100%;
+            max-height: 500px;
+            background: #000;
+            display: block;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        #searchInput {
+            width: 100%;
+            max-width: 550px;
+            padding: 12px 20px;
+            font-size: 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #searchInput:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 198, 255, 0.2);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .media-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .media-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            border-color: var(--accent-color);
+        }
+
+        .media-info h3 {
+            font-size: 15px;
+            margin: 0 0 12px 0;
+            color: #fff;
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        .badges {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .badge-cat {
+            background-color: #1a1e2d;
+            color: #00c6ff;
+            border: 1px solid #282f45;
+        }
+
+        .badge-quality {
+            background-color: #065f46;
+            color: #a7f3d0;
+        }
+
+        .play-btn {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .play-btn:hover {
+            opacity: 0.9;
+        }
+
+        .play-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>مشغل وسائط جنود الخفاء (أفلام، مسرحيات ومسلسلات)</h1>
+        <p>مكتبة المحتوى الترفيهي الشاملة بدون رياضة أو بث مباشر</p>
+    </header>
+
+    <div class="player-container">
+        <video id="videoPlayer" controls autoplay></video>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="ابحث في الأفلام، المسرحيات، أو المسلسلات..." onkeyup="filterMedia()">
+    </div>
+
+    <div class="container" id="mediaContainer"></div>
+
+    <script>
+        const rawPlaylist = [
+            // باقة المسرحيات العربية (75 عمل)
+            { name: "آه يا درب الزلق", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137517.mkv" },
+            { name: "بو سارة في العمارة", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137518.mp4" },
+            { name: "عالمكشوف", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137519.mkv" },
+            { name: "الابندا", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137520.mkv" },
+            { name: "العصفورة السعيدة", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137521.avi" },
+            { name: "البيت بيتك", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137522.mp4" },
+            { name: "عنتر المفلتر", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137523.mp4" },
+            { name: "بشت المدير", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137524.mkv" },
+            { name: "بسنا فلوس 1", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137525.mp4" },
+            { name: "بسنا فلوس 2", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137526.mp4" },
+            { name: "بسنا فلوس 3", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137527.mp4" },
+            { name: "ضيعة تشرين", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137528.mp4" },
+            { name: "اللي يدري يدري 1", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137529.mkv" },
+            { name: "اللي يدري يدري 2", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137530.mkv" },
+            { name: "إذا طاح الجمل", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137531.mkv" },
+            { name: "فضيحة 1", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137532.mp4" },
+            { name: "فضيحة 2", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137533.mp4" },
+            { name: "غربة", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137534.mkv" },
+            { name: "هلا بالخميس", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137535.mp4" },
+            { name: "حاميها حراميها", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137536.mp4" },
+            { name: "كامل الدسم 1", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137537.mp4" },
+            { name: "كامل الدسم 2", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137538.mp4" },
+            { name: "كاسك يا وطن", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137539.mkv" },
+            { name: "كدة أوكيه", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137540.mp4" },
+            { name: "كنز الدنيا", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137541.mp4" },
+            { name: "خاربة خاربة", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137542.mkv" },
+            { name: "خبز خبزتيه", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137543.mkv" },
+            { name: "لن أعيش في جلباب زوجتي", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137544.mkv" },
+            { name: "ما يصح إلا الصحيح", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137545.mkv" },
+            { name: "مخروش طاح بكروش 1", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137546.mp4" },
+            { name: "مخروش طاح بكروش 2", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137547.mp4" },
+            { name: "صح لسانك", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137548.mkv" },
+            { name: "سيف العرب", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137549.mp4" },
+            { name: "شقائق النعمان", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137550.mkv" },
+            { name: "سوبر صطار 1", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137551.mp4" },
+            { name: "سوبر صطار 2", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137552.mp4" },
+            { name: "تحت الصفر 1", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137553.mp4" },
+            { name: "تحت الصفر 2", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137554.mp4" },
+            { name: "طاح مخروش 1", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137555.mp4" },
+            { name: "طاح مخروش 2", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137556.mp4" },
+            { name: "ولد بطنها", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/137557.mp4" },
+            { name: "علشان خاطر عيونك", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138551.mp4" },
+            { name: "على هامان يا فرعون", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138552.mp4" },
+            { name: "الواد الجن", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138553.mp4" },
+            { name: "انا مش خرونج انا الدولار", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138554.mp4" },
+            { name: "انا وهي وسموه", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138555.mp4" },
+            { name: "عودة ريا وسكينة", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138556.mp4" },
+            { name: "بني صامت", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138557.mp4" },
+            { name: "فرحة الأمة", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138558.mp4" },
+            { name: "فرسان المناخ", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138559.mp4" },
+            { name: "هالو دوللي", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138560.mp4" },
+            { name: "خال الكلفس", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138561.mp4" },
+            { name: "ملينا زحمة", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138562.mp4" },
+            { name: "مدير طرطور", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138563.mp4" },
+            { name: "مراهق في الخمسين", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138564.mp4" },
+            { name: "حالة طوارئ", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138601.mp4" },
+            { name: "المشاغبون في المستشفى", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138602.mp4" },
+            { name: "الواد سيد الشغال", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138603.mkv" },
+            { name: "عروسة و جوز عرسان", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138604.mp4" },
+            { name: "باي باي عرب", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138605.mp4" },
+            { name: "باي باي لندن", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138606.mp4" },
+            { name: "ضحية بيت العز", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138607.mp4" },
+            { name: "البلدوزر", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138608.mp4" },
+            { name: "الرجل اللي جوز مراته", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138609.mp4" },
+            { name: "إنها حقا عائلة محترمة", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138610.mp4" },
+            { name: "هالة حبيبتي", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138611.mp4" },
+            { name: "شريف رغم انفه", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138612.mp4" },
+            { name: "سنة مع الشغل اللذيذ", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138613.mp4" },
+            { name: "وجهة نظر", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/138614.mp4" },
+            { name: "عش المجانين", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150704.mp4" },
+            { name: "حريم السلطان", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150705.mp4" },
+            { name: "حواء الساعة 12", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150706.mp4" },
+            { name: "عفريت لكل مواطن", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150707.mp4" },
+            { name: "الفهلوي", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150708.mp4" },
+            { name: "الجوكر", group: "🎭 مسرحيات عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150709.mp4" },
+
+            // باقة الأفلام العربية (243 فيلم)
+            { name: "أيام السادات", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143200.mp4" },
+            { name: "عوكل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143201.mp4" },
+            { name: "٥٥ إسعاف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143202.mp4" },
+            { name: "حالة حب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143203.mp4" },
+            { name: "حبك نار", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143204.mp4" },
+            { name: "حريم كريم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143205.mp4" },
+            { name: "ابو علي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143206.mp4" },
+            { name: "افريكانو", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143207.mp4" },
+            { name: "الحاسة السابعة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143208.mp4" },
+            { name: "الباحثات عن الحرية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143209.mp4" },
+            { name: "الباشا تلميذ", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143210.mp4" },
+            { name: "الحرب العالمية الثالثة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143211.mp4" },
+            { name: "علي سبايسي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143212.mp4" },
+            { name: "اللمبي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143213.mp4" },
+            { name: "الناظر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143214.mp4" },
+            { name: "السفارة في العمارة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143215.mp4" },
+            { name: "التجربة الدنماركية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143216.mp4" },
+            { name: "أرض الخوف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143217.mp4" },
+            { name: "صحاب ولا بزنس", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143218.mp4" },
+            { name: "بحب السيما", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143219.mp4" },
+            { name: "بحبك، وأنا كمان", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143220.mp4" },
+            { name: "بلية ودماغه العالية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143221.mp4" },
+            { name: "درس خصوصي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143223.mp4" },
+            { name: "اللي بالي بالك", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143224.mp4" },
+            { name: "انتهاء الدراسة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143225.mp4" },
+            { name: "Ga2na Albean Altale", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143226.mp4" },
+            { name: "جبي منو وفيه", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143227.mp4" },
+            { name: "جواز بقرار جمهوري", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143228.mp4" },
+            { name: "هاللو أمريكا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143229.mp4" },
+            { name: "قلب جريء", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143230.mp4" },
+            { name: "خالتي فرنسا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143231.mp4" },
+            { name: "خلي الدماغ صاحي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143232.mp4" },
+            { name: "قشطة يابا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143233.mp4" },
+            { name: "ليلة سقوط بغداد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143234.mp4" },
+            { name: "معالي الوزير", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143235.mp4" },
+            { name: "معلش إحنا بنتبهدل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143236.mp4" },
+            { name: "ميدو مشاكل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143237.mp4" },
+            { name: "ملاكي اسكندرية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143238.mp4" },
+            { name: "محامي خُلع", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143239.mp4" },
+            { name: "مواطن ومخبر وحرامي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143240.mp4" },
+            { name: "مذكرات مراهقة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143241.mp4" },
+            { name: "عمر 2000", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143242.mp4" },
+            { name: "صايع بحر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143243.mp4" },
+            { name: "سهر الليالي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143244.mp4" },
+            { name: "سيد العاطفي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143245.mp4" },
+            { name: "سنة أولى نصب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143246.mp4" },
+            { name: "تايه في أمريكا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143247.mp4" },
+            { name: "ويجا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143248.mp4" },
+            { name: "يا انا يا خالتي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143249.mp4" },
+            { name: "يوم الكرامة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/143250.mp4" },
+            { name: "122", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144260.mp4" },
+            { name: "Al Aref", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144261.mp4" },
+            { name: "البدلة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144262.mp4" },
+            { name: "الفلوس", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144263.mp4" },
+            { name: "الهيبة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144264.mp4" },
+            { name: "المهراجا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144265.mp4" },
+            { name: "بيزات", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144267.mp4" },
+            { name: "الكنز 1", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144268.mp4" },
+            { name: "الكنز 2", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144269.mp4" },
+            { name: "الممر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144270.mp4" },
+            { name: "هاشتاج جوزني", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144271.mp4" },
+            { name: "هجولة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144272.mp4" },
+            { name: "كذبة كبيرة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144273.mp4" },
+            { name: "كازانوفا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144274.mkv" },
+            { name: "اللعبة الأمريكاني", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144275.mp4" },
+            { name: "ليلة هنا وسرور", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144276.mp4" },
+            { name: "مسافر حلب اسطنبول", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144277.mp4" },
+            { name: "نورت مصر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144278.mp4" },
+            { name: "قهوة بورصة مصر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144279.mp4" },
+            { name: "قرمط بيتمرمط", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144280.mp4" },
+            { name: "ساعة إجابة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144281.mp4" },
+            { name: "سبع البرمبة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144282.mp4" },
+            { name: "الشاهد الوحيد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144283.mp4" },
+            { name: "شباب شياب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144284.mp4" },
+            { name: "ولا غلطة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144285.mp4" },
+            { name: "يوم وليلة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144287.mp4" },
+            { name: "رحلة يوسف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144288.mkv" },
+            { name: "10 أيام قبل الزفة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144289.mp4" },
+            { name: "200 متر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144290.mp4" },
+            { name: "على وضعك", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144291.mp4" },
+            { name: "عودة من ٢٠٣٨", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144292.mp4" },
+            { name: "عرايس الخوف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144293.mp4" },
+            { name: "عزف منفرد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144294.mp4" },
+            { name: "88 خطوة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144295.mp4" },
+            { name: "ادم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144296.mp4" },
+            { name: "آكل، شارب، نايم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144297.mp4" },
+            { name: "آخر ديك في مصر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144298.mp4" },
+            { name: "أخناتون في مراكش", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144299.mp4" },
+            { name: "العين الساحرة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144300.mp4" },
+            { name: "الحبل السري", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144301.mp4" },
+            { name: "الاعتراف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144302.mp4" },
+            { name: "الباب يفوت أمل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144303.mp4" },
+            { name: "الجفت، الواوي، الذئب و الصبي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144304.mp4" },
+            { name: "الهدية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144305.mp4" },
+            { name: "الحفلة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144306.mp4" },
+            { name: "الخلاط", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144307.mp4" },
+            { name: "القشاش", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144308.mp4" },
+            { name: "المهرجان", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144309.mp4" },
+            { name: "المترجم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144310.mp4" },
+            { name: "النهاية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144311.mp4" },
+            { name: "الرابعة بتوقيت الفردوس", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144312.mp4" },
+            { name: "أمينة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144313.mp4" },
+            { name: "أنا وأنت وأمي وأبي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144314.mp4" },
+            { name: "إنت إيه", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144315.mp4" },
+            { name: "النهارده يوم جميل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144316.mp4" },
+            { name: "جدران", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144317.mp4" },
+            { name: "هجوم منتصف الليل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144318.mp4" },
+            { name: "ماكو", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144319.mp4" },
+            { name: "موسى", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144320.mp4" },
+            { name: "ولاد البلد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144321.mp4" },
+            { name: "الزهر لما يلعب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145525.mp4" },
+            { name: "امان يا صاحبي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145526.mp4" },
+            { name: "أنا لحبيبي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145527.mp4" },
+            { name: "انا والنحلة والدبور", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145528.mp4" },
+            { name: "عندما يقع الانسان في مستنقع أفكاره", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145529.mp4" },
+            { name: "أولاد حريم كريم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145530.mp4" },
+            { name: "أزمة مالية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145531.mp4" },
+            { name: "بيكيا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145532.mp4" },
+            { name: "هروب مفاجئ", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145533.mp4" },
+            { name: "كارت ميموري", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145534.mp4" },
+            { name: "خير وبركة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145535.mp4" },
+            { name: "خلك شنب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145536.mp4" },
+            { name: "كيكة زينة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145537.mp4" },
+            { name: "كنز الدنيا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145538.mp4" },
+            { name: "ليل خارجي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145539.mp4" },
+            { name: "مسافة ميل بحذائي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145540.mp4" },
+            { name: "قبل زحمة الصيف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145541.mp4" },
+            { name: "قلب الليل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145542.mp4" },
+            { name: "قصة حب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145543.mp4" },
+            { name: "قسطي بيوجعني", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145544.mp4" },
+            { name: "راشد ورجب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145545.mp4" },
+            { name: "رحلة 404", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145546.mp4" },
+            { name: "شيهانة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145547.mp4" },
+            { name: "شنطة حمزة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145548.mp4" },
+            { name: "تحت السموات والارض", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145549.mp4" },
+            { name: "تايم اوت", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145550.mp4" },
+            { name: "طلامس", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145551.mp4" },
+            { name: "طلق صناعي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145552.mp4" },
+            { name: "فيتامين", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145553.mp4" },
+            { name: "ولاد رزق", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145554.mp4" },
+            { name: "وقفة رجالة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145555.mp4" },
+            { name: "يوم الدين", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145556.mp4" },
+            { name: "محظوظ ومبروك", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145558.mkv" },
+            { name: "ورد مسموم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/145559.mkv" },
+            { name: "العنكبوت", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146825.mkv" },
+            { name: "كاملة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146826.mp4" },
+            { name: "قدرات غير عادية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146827.mp4" },
+            { name: "خان تيولا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146828.mp4" },
+            { name: "خط الموت", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146829.mp4" },
+            { name: "خطة جيمي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146830.mp4" },
+            { name: "لا أحد هناك", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146831.mp4" },
+            { name: "لا مؤاخذة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146832.mp4" },
+            { name: "مفك", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146833.mp4" },
+            { name: "ماتعلاش عن الحاجب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146834.mp4" },
+            { name: "ماورد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146835.mp4" },
+            { name: "مدينة الملاهي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146836.mp4" },
+            { name: "ميكا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146837.mp4" },
+            { name: "مراتي وزوجتي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146838.mp4" },
+            { name: "مسافر حلب اسطنبول", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146839.mp4" },
+            { name: "مسج", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146840.mp4" },
+            { name: "مذكرة ابتزاز", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146841.mp4" },
+            { name: "نحس إكس لارج", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146842.mp4" },
+            { name: "نار من نار", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146843.mp4" },
+            { name: "نجد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146844.mp4" },
+            { name: "نجمة الصبح", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146845.mp4" },
+            { name: "نوم التلات", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146846.mp4" },
+            { name: "نور وجوه محرمة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146847.mp4" },
+            { name: "قصة شرطي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146848.mkv" },
+            { name: "رأس السنة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146849.mp4" },
+            { name: "ريجاتا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146850.mp4" },
+            { name: "رجل وثلاثة ايام", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146851.mp4" },
+            { name: "رولم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146852.mp4" },
+            { name: "صباح الخير", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146853.mp4" },
+            { name: "سيدة البحر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146854.mp4" },
+            { name: "شمس المعارف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146855.mp4" },
+            { name: "شد أجزاء", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146856.mp4" },
+            { name: "شهيد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146857.mp4" },
+            { name: "صنع في مصر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146858.mp4" },
+            { name: "سرمد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146859.mp4" },
+            { name: "طريق الوادي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/146860.mkv" },
+            { name: "ع الزيرو", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148131.mp4" },
+            { name: "أبو نسب", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148132.mp4" },
+            { name: "أخي فوق الشجرة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148133.mp4" },
+            { name: "العميل صفر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148134.mp4" },
+            { name: "الحب بتفاصيله", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148136.mp4" },
+            { name: "الملك سليمان نبي الله عليه السلام", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148137.mp4" },
+            { name: "المرهقون", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148138.mp4" },
+            { name: "المتمرد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148139.mkv" },
+            { name: "الصف الأخير", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148140.mp4" },
+            { name: "أنف وثلاث عيون", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148141.mp4" },
+            { name: "بعد الشر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148142.mp4" },
+            { name: "بسمة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148143.mp4" },
+            { name: "كارت شحن", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148144.mp4" },
+            { name: "الإسكندراني", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148145.mp4" },
+            { name: "الحريفة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148146.mp4" },
+            { name: "عصابة عظيمة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148147.mp4" },
+            { name: "فاصل من اللحظات اللذيذة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148148.mp4" },
+            { name: "وداعا جوليا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148149.mp4" },
+            { name: "حرام الجسد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148150.mp4" },
+            { name: "شهر زي العسل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148151.mp4" },
+            { name: "خمس جولات", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148152.mp4" },
+            { name: "ليه تعيشها لوحدك", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148153.mp4" },
+            { name: "رهبة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148157.mp4" },
+            { name: "اشباح اوروبا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148158.mp4" },
+            { name: "Shaqow", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148164.mp4" },
+            { name: "النهر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148167.mp4" },
+            { name: "تتح", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148170.mp4" },
+            { name: "فوي! فوي! فوي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148171.mp4" },
+            { name: "واحده كده", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148173.mp4" },
+            { name: "ولد العكري", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148174.mp4" },
+            { name: "وش في وش", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148175.mp4" },
+            { name: "ويكند", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148176.mp4" },
+            { name: "Yanal", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148181.mp4" },
+            { name: "يا طير الطاير", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/148182.mp4" },
+            { name: "عفريت ترانزيت", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150886.mp4" },
+            { name: "عيش حياتك", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150887.mp4" },
+            { name: "الأبلة طم طم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150888.mp4" },
+            { name: "الضيف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150889.mp4" },
+            { name: "الغسالة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150890.mp4" },
+            { name: "علي وعليا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150891.mp4" },
+            { name: "الخوف", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150892.mp4" },
+            { name: "المرشحة المثالية", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150893.mp4" },
+            { name: "المسافة صفر", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150894.mp4" },
+            { name: "الموصل", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150895.mp4" },
+            { name: "الصندوق الاسود", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150896.mp4" },
+            { name: "الزعيم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150897.mp4" },
+            { name: "انت حبيبي وبس", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150898.mp4" },
+            { name: "بابا جاب موز", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150899.mp4" },
+            { name: "بلوموندو", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150900.mp4" },
+            { name: "بنزين", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150901.mp4" },
+            { name: "بتوقيت الشام", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150902.mp4" },
+            { name: "دراهم", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150903.mp4" },
+            { name: "خيبتنا", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150904.mp4" },
+            { name: "لما بنتولد", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150905.mp4" },
+            { name: "مستر إكس", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150906.mp4" },
+            { name: "رغدة متوحشة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150907.mp4" },
+            { name: "صاحب المقام", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150908.mp4" },
+            { name: "سمكة وصنارة", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150909.mp4" },
+            { name: "ستموت في العشرين", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150910.mp4" },
+            { name: "تعويذة تو", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150911.mp4" },
+            { name: "ولد مرزوق", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150912.mp4" },
+            { name: "المحارب العربي", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150913.mkv" },
+            { name: "نحس اكس لارج", group: "🎬 أفلام عربية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/150914.mkv" },
+
+            // باقة الأفلام الكلاسيكية (45 فيلم)
+            { name: "7 أيام", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144322.mp4" },
+            { name: "آدم والنساء", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144323.mp4" },
+            { name: "أدهم الشرقاوي", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144324.mp4" },
+            { name: "عيب يا لولو عيب", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144325.mp4" },
+            { name: "عفريت مراتي", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144326.mp4" },
+            { name: "الايدي الناعمة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144327.mp4" },
+            { name: "البنات والصيف", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144328.mp4" },
+            { name: "الدموع الساخنة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144329.mp4" },
+            { name: "الجريمة الضاحكة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144330.mp4" },
+            { name: "الخيط الرفيع", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144331.mp4" },
+            { name: "الخطيئة السابعة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144332.mkv" },
+            { name: "اللص والكلاب", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144333.mp4" },
+            { name: "المدير الفني", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144334.mp4" },
+            { name: "المحفظة معايا", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144335.mp4" },
+            { name: "المزيفون", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144336.mp4" },
+            { name: "الناصر صلاح الدين", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144337.mp4" },
+            { name: "النيل والحياة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144338.mkv" },
+            { name: "الست الناظرة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144339.mp4" },
+            { name: "الوفاء العظيم", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144340.mp4" },
+            { name: "امير الدهاء", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144341.mp4" },
+            { name: "عنتر بن شداد", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144342.mp4" },
+            { name: "عودة الابن الضال", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144343.mp4" },
+            { name: "أرض النفاق", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144345.mp4" },
+            { name: "عريس بنت الوزير", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144346.mp4" },
+            { name: "أصعب جواز", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144347.mp4" },
+            { name: "عسل أسود", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144348.mp4" },
+            { name: "بطل للنهاية", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144349.mp4" },
+            { name: "وبالوالدين احسانا", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144350.mp4" },
+            { name: "بنت الحارس", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144351.mp4" },
+            { name: "دعاء الكروان", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144352.mp4" },
+            { name: "إحنا بتوع الأتوبيس", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144353.mp4" },
+            { name: "الأرض", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144354.mp4" },
+            { name: "العاصفة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144355.mp4" },
+            { name: "الحفيد", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144356.mkv" },
+            { name: "الحب قبل الخبز احيانا", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144357.mp4" },
+            { name: "الحسناء واللص", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144358.mp4" },
+            { name: "المعلمة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144359.mp4" },
+            { name: "الرجل الذي باع ظهره", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144360.mp4" },
+            { name: "الصعاليك", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144362.mp4" },
+            { name: "الشيماء", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144363.mp4" },
+            { name: "إمبراطورية م", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144364.mp4" },
+            { name: "أم رتيبة", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144365.mp4" },
+            { name: "انت اللى قتلت بابايا", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144366.mp4" },
+            { name: "اشتباك", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144367.mp4" },
+            { name: "أذكريني", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144368.mp4" }
+        ];
+
+        function detectQuality(item) {
+            let text = (item.name + " " + item.group).toUpperCase();
+            if (text.includes("4K") || text.includes("⁴ᴷ")) return "4K";
+            if (text.includes("FHD") || text.includes("¹⁰⁸⁰") || text.includes("1080")) return "FHD";
+            if (text.includes("HD") || text.includes("ᴴᴰ") || text.includes("720")) return "HD";
+            if (text.includes("SD") || text.includes("ˢᴰ")) return "SD";
+            if (item.url.endsWith(".mkv")) return "MKV";
+            if (item.url.endsWith(".mp4")) return "MP4";
+            if (item.url.endsWith(".avi")) return "AVI";
+            return "HD";
+        }
+
+        function renderMedia(data) {
+            const container = document.getElementById("mediaContainer");
+            container.innerHTML = "";
+
+            if (data.length === 0) {
+                container.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color: #8a90a3;'>لا توجد نتائج مطابقة لبحثك.</p>";
+                return;
+            }
+
+            data.forEach(item => {
+                const quality = detectQuality(item);
+                const card = document.createElement("div");
+                card.className = "media-card";
+                
+                card.innerHTML = `
+                    <div class="media-info">
+                        <div class="badges">
+                            <span class="badge badge-quality">${quality}</span>
+                            <span class="badge badge-cat">${item.group}</span>
+                        </div>
+                        <h3>${item.name}</h3>
+                    </div>
+                    <button class="play-btn" onclick="playMedia('${item.url}')">تشغيل الآن</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function playMedia(url) {
+            const player = document.getElementById("videoPlayer");
+            player.src = url;
+            player.play().catch(e => console.log(e));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function filterMedia() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = rawPlaylist.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                item.group.toLowerCase().includes(query) ||
+                detectQuality(item).toLowerCase().includes(query)
+            );
+            renderMedia(filtered);
+        }
+
+        window.onload = () => {
+            renderMedia(rawPlaylist);
+            if (rawPlaylist.length > 0) {
+                const player = document.getElementById("videoPlayer");
+                player.src = rawPlaylist[0].url;
+            }
+        };
+    </script>
+</body>
+</html>
