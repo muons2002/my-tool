@@ -169,7 +169,7 @@
     </header>
 
     <div class="player-container">
-        <video id="videoPlayer" controls autoplay crossorigin="anonymous"></video>
+        <video id="videoPlayer" controls autoplay></video>
     </div>
 
     <div class="search-container">
@@ -550,14 +550,6 @@
             { name: "أذكريني", group: "🏺 أفلام كلاسيكية", url: "http://mysql360.life:2095/movie/METRkaytBD/vstdwBOjCx/144368.mp4" }
         ];
 
-        // دالة تحويل الروابط تلقائياً لحل مشكلة المحتوى غير الآمن على GitHub
-        function getSecureUrl(url) {
-            if (window.location.protocol === 'https:' && url.startsWith('http://')) {
-                return url.replace('http://', 'https://');
-            }
-            return url;
-        }
-
         function detectQuality(item) {
             let text = (item.name + " " + item.group).toUpperCase();
             if (text.includes("4K") || text.includes("⁴ᴷ")) return "4K";
@@ -600,15 +592,11 @@
 
         function playMedia(url) {
             const player = document.getElementById("videoPlayer");
-            const finalUrl = getSecureUrl(url);
-            player.src = finalUrl;
             
+            // إجبار التشغيل داخل نفس مشغل الصفحة بدون فتح تبويب جديد
+            player.src = url;
             player.play().catch(e => {
-                console.log("Play failed, attempting fallback:", e);
-                // محاولة فتح الرابط الأصلي بشكل مباشر لو المتصفح رفض التشفير
-                if (window.location.protocol === 'https:') {
-                    window.open(url, '_blank');
-                }
+                console.log("Playback error:", e);
             });
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -628,7 +616,7 @@
             renderMedia(rawPlaylist);
             if (rawPlaylist.length > 0) {
                 const player = document.getElementById("videoPlayer");
-                player.src = getSecureUrl(rawPlaylist[0].url);
+                player.src = rawPlaylist[0].url;
             }
         };
     </script>
